@@ -33,7 +33,7 @@ const Login = () => {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-600"
             required
           />
           <input
@@ -41,7 +41,7 @@ const Login = () => {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-600"
             required
           />
           <button className="bg-black text-white py-2 rounded-md hover:opacity-90 transition">
@@ -50,7 +50,7 @@ const Login = () => {
         </form>
         <p className="mt-4 text-center text-sm text-gray-600">
           New here?{' '}
-          <Link to="/signin" className="text-blue-600 hover:underline">
+          <Link to="/signin" className=" text-gray-500 font-semibold hover:text-black hover:underline transition-all 3s ease-linear">
             Sign Up
           </Link>
         </p>

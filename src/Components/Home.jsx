@@ -16,24 +16,10 @@ const Home = () => {
   return (
     <div className="space-y-10">
         <Men />
-      {/* <Section title="Men Collection">
-      </Section> */}
-
         <Women />
-      {/* <Section title="Women Collection">
-      </Section> */}
-
         <Kid />
-      {/* <Section title="Kids Collection">
-      </Section> */}
-
         <Electronic />
-      {/* <Section title="Electronics">
-      </Section> */}
-
         <Furniture />
-      {/* <Section title="Furniture">
-      </Section> */}
     </div>
   );
 };

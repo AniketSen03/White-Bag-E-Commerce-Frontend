@@ -32,7 +32,7 @@ const Signin = () => {
             placeholder="Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-600"
             required
           />
           <input
@@ -40,7 +40,7 @@ const Signin = () => {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-600"
             required
           />
           <input
@@ -48,7 +48,7 @@ const Signin = () => {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-600"
             required
           />
           <button className="bg-black text-white py-2 rounded-md hover:opacity-90 transition">
@@ -57,7 +57,7 @@ const Signin = () => {
         </form>
         <p className="mt-4 text-center text-sm text-gray-600">
           Already have an account?{' '}
-          <Link to="/login" className="text-blue-600 hover:underline">
+          <Link to="/login" className="text-gray-500 font-semibold hover:text-black hover:underline transition-all 3s ease-linear">
             Login
           </Link>
         </p>

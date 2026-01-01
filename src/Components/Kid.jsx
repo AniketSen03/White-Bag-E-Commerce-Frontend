@@ -45,11 +45,7 @@ const Kid = ({ addToCart }) => {
           setSortOption={setSortOption}
         />
       )}
-            <h1 className="text-2xl font-bold text-center mb-8">
-                Kids Collection
-            </h1>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 flex-1">
                 {filteredItems.map(item => (
                     <div
                         key={item.id}

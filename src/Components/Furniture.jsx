@@ -1,18 +1,54 @@
-import React from 'react';
+import React, { useState } from 'react';
 import collection from '../Components/data';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from "react-router-dom";
+import Filter from "./Filter";
 
 const Furniture = ({ addToCart }) => {
   const items = collection[4]; // furniture index
+  const location = useLocation();
+  const showFilter = location.pathname === "/men-clothes";
+
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [selectedSize, setSelectedSize] = useState(null);
+  const [selectedPrice, setSelectedPrice] = useState(null);
+  const [selectedRating, setSelectedRating] = useState(null);
+  const [sortOption, setSortOption] = useState("");
+
+  let filteredItems = items
+    .filter((item) =>
+      selectedColor ? item.color?.toLowerCase() === selectedColor.toLowerCase() : true
+    )
+    .filter((item) =>
+      selectedSize ? item.size.includes(selectedSize) : true
+    )
+    .filter((item) =>
+      selectedPrice ? parseFloat(item.price.replace(/[^\d.]/g, "")) <= selectedPrice : true
+    )
+    .filter((item) =>
+      selectedRating ? item.rating >= selectedRating : true
+    );
+
+  if (sortOption === "low") {
+    filteredItems.sort((a, b) => parseFloat(a.price.replace(/[^\d.]/g, "")) - parseFloat(b.price.replace(/[^\d.]/g, "")));
+  } else if (sortOption === "high") {
+    filteredItems.sort((a, b) => parseFloat(b.price.replace(/[^\d.]/g, "")) - parseFloat(a.price.replace(/[^\d.]/g, "")));
+  } else if (sortOption === "rating") {
+    filteredItems.sort((a, b) => b.rating - a.rating);
+  }
 
   return (
-    <div className="px-4 py-8">
-      <h1 className="text-2xl font-bold text-center mb-8">
-        Furniture Collection
-      </h1>
-
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-        {items.map(item => (
+    <div className="flex gap-6 px-4 py-8">
+       {showFilter && (
+        <Filter
+          setSelectedColor={setSelectedColor}
+          setSelectedSize={setSelectedSize}
+          setSelectedPrice={setSelectedPrice}
+          setSelectedRating={setSelectedRating}
+          setSortOption={setSortOption}
+        />
+      )}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 flex-1">
+        {filteredItems.map(item => (
           <div
             key={item.id}
             className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden flex flex-col"
