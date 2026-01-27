@@ -19,7 +19,7 @@ const Login = () => {
       setPassword('');
       setuser(res.data.user);
       localStorage.setItem("user", JSON.stringify(res.data.user))
-navigate("/");
+      navigate("/");
     } catch (err) {
       alert(err.response?.data?.message || 'Login failed');
     }

@@ -10,12 +10,21 @@ const Param = () => {
 
   // 🔹 category ko index me convert karna
   const categoryIndex = {
-    men: 0,
-    women: 1,
-    kids: 2,
-    electronics: 3,
-    furniture: 4,
-  }[category];
+     men: 0,
+  "men-clothes": 0,
+
+  women: 1,
+  "women-clothes": 1,
+
+  kid: 2,
+  kids: 2,
+  "kid-clothes": 2,
+
+  electronic: 3,
+  electronics: 3,
+
+  furniture: 4,
+  };
 
   const items = collection[categoryIndex] || [];
   const product = items.find(p => Number(p.id) === Number(id));

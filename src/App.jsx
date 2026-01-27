@@ -22,9 +22,17 @@ export const usercontext = createContext();
 
 const App = () => {
   const [cart, setCart] = useState([]);
-  const [user, setuser] = useState(
-    JSON.parse(localStorage.getItem("user")) || null
-  );
+  const [user, setuser] = useState(() => {
+    const saved = localStorage.getItem("user");
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  useEffect(() => {
+  if (!user) {
+    setCart([]);
+  }
+}, [user]);
+
 
   // 🔹 Load cart from DB when app loads
   useEffect(() => {
@@ -39,6 +47,7 @@ const App = () => {
   // 🔹 Persist user
   useEffect(() => {
     if (user) localStorage.setItem("user", JSON.stringify(user));
+    if (!user) setCart([]);
     else localStorage.removeItem("user");
   }, [user]);
 
@@ -50,53 +59,42 @@ const App = () => {
       return;
     }
 
-    const price =
-      typeof item.price === "number"
-        ? item.price
-        : parseFloat(item.price.replace(/[^\d.]/g, ""));
+    const exists = cart.find(
+      (c) => c.title === item.title
+    );
 
-    // 🔎 check if already in cart
-    const existing = cart.find((c) => c.title === item.title);
-
-    if (existing) {
-      // 👉 update quantity in DB
-      await fetch(`http://localhost:3000/add_to_cart/${existing._id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          quantity: existing.quantity + 1,
-        }),
-      });
-
-      // 👉 update quantity in frontend
+    if (exists) {
       setCart((prev) =>
         prev.map((c) =>
-          c._id === existing._id
+          c.title === item.title
             ? { ...c, quantity: c.quantity + 1 }
             : c
         )
       );
-
-    } else {
-      // 👉 add new product
-      const cleaned = {
-        title: item.title,
-        description: item.description,
-        image: item.image,
-        price: price,
-        quantity: 1,
-      };
-
-      const res = await fetch("http://localhost:3000/add_to_cart", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(cleaned),
-      });
-
-      const saved = await res.json();
-      setCart((prev) => [...prev, saved]);
+      return;
     }
+
+    const cleaned = {
+      title: item.title,
+      description: item.description,
+      image: item.image,
+      price: Number(
+        String(item.price).replace(/[^\d]/g, "")
+      ),
+      quantity: 1,
+      userId: user._id,
+    };
+
+    const res = await fetch("http://localhost:3000/add_to_cart", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(cleaned),
+    });
+
+    const saved = await res.json();
+    setCart((prev) => [...prev, saved]);
   };
+
 
 
   return (
@@ -122,7 +120,7 @@ const App = () => {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/add_to_cart" element={<AddCart cart={cart} setCart={setCart} />} />
-          <Route path="/:category/:id" element={<Param/>} />
+          <Route path="/:category/:id" element={<Param />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signin" element={<Signin />} />
           <Route path="/buy/:category/:id" element={<Buy />} />

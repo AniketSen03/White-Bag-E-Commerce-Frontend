@@ -9,7 +9,7 @@ const Signin = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-const navigate =useNavigate();
+  const navigate = useNavigate();
   // ✅ HOOK INSIDE COMPONENT + CORRECT CONTEXT
   const { setuser } = useContext(usercontext);
 
@@ -23,7 +23,7 @@ const navigate =useNavigate();
       // ✅ SAVE USER
       setuser(res.data.user);
       localStorage.setItem("user", JSON.stringify(res.data.user));
-navigate("/");
+      navigate("/");
       setName("");
       setEmail("");
       setPassword("");

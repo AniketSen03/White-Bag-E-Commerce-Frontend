@@ -22,9 +22,7 @@ const Buy = () => {
       ? [{ ...product, quantity: 1 }]
       : stateCart?.length
       ? stateCart
-      : cart?.length
-      ? cart
-      : [];
+      : cart;
 
   if (!checkoutItems.length) {
     return <h2 className="text-center mt-20">Product not found</h2>;
