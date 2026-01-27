@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import collection from '../Components/data';
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Filter from "./Filter";
+import { usercontext } from '../App';
 
-const Furniture = ({ addToCart }) => {
+const Furniture = () => {
+  const navigate = useNavigate();
+  const { user, addToCart } = useContext(usercontext);
   const items = collection[4]; // furniture index
   const location = useLocation();
   const showFilter = location.pathname === "/men-clothes";
@@ -81,8 +84,15 @@ const Furniture = ({ addToCart }) => {
 
               <div className="mt-auto flex gap-2">
                 <button
-                  onClick={() => addToCart(item)}
-                  className="flex-1 py-2 bg-black text-white text-sm rounded border border-black hover:bg-white hover:text-black transition-all duration-200 ease-linear"
+                  onClick={() => {
+                    if (!user) {
+                      alert("Please login first");
+                      navigate("/login");
+                      return;
+                    }
+                    addToCart(item);
+                  }}
+                  className="flex-1 py-2 bg-black text-white text-sm rounded hover:opacity-90 border border-black hover:bg-white hover:text-black transition-all duration-200 ease-linear"
                 >
                   Add
                 </button>

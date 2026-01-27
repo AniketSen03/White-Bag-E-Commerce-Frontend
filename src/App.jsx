@@ -43,28 +43,61 @@ const App = () => {
   }, [user]);
 
   // 🔹 ADD TO CART (LOGIN REQUIRED)
+  // 🔹 ADD TO CART (NO DUPLICATE, ONLY QTY INCREASE)
   const addToCart = async (item) => {
     if (!user) {
       alert("Please login first");
       return;
     }
 
-    const cleaned = {
-      title: item.title,
-      description: item.description,
-      image: item.image,
-      price: parseFloat(item.price.replace(/[^\d.]/g, "")),
-    };
+    const price =
+      typeof item.price === "number"
+        ? item.price
+        : parseFloat(item.price.replace(/[^\d.]/g, ""));
 
-    const res = await fetch("http://localhost:3000/add_to_cart", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(cleaned),
-    });
+    // 🔎 check if already in cart
+    const existing = cart.find((c) => c.title === item.title);
 
-    const saved = await res.json();
-    setCart((prev) => [...prev, saved]);
+    if (existing) {
+      // 👉 update quantity in DB
+      await fetch(`http://localhost:3000/add_to_cart/${existing._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          quantity: existing.quantity + 1,
+        }),
+      });
+
+      // 👉 update quantity in frontend
+      setCart((prev) =>
+        prev.map((c) =>
+          c._id === existing._id
+            ? { ...c, quantity: c.quantity + 1 }
+            : c
+        )
+      );
+
+    } else {
+      // 👉 add new product
+      const cleaned = {
+        title: item.title,
+        description: item.description,
+        image: item.image,
+        price: price,
+        quantity: 1,
+      };
+
+      const res = await fetch("http://localhost:3000/add_to_cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cleaned),
+      });
+
+      const saved = await res.json();
+      setCart((prev) => [...prev, saved]);
+    }
   };
+
 
   return (
     <usercontext.Provider
@@ -89,12 +122,12 @@ const App = () => {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/add_to_cart" element={<AddCart cart={cart} setCart={setCart} />} />
-          <Route path="/:category/:id" element={<Param addToCart={addToCart} />} />
+          <Route path="/:category/:id" element={<Param/>} />
           <Route path="/login" element={<Login />} />
           <Route path="/signin" element={<Signin />} />
           <Route path="/buy/:category/:id" element={<Buy />} />
           <Route path="/orders" element={<MyOrders />} />
-          <Route path="/my-orders" element={<MyOrders />} />
+          <Route path="/myorders" element={<MyOrders />} />
           <Route path="/order/:id" element={<OrderDetails />} />
 
         </Routes>

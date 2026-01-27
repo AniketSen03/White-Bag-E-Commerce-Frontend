@@ -3,7 +3,7 @@ import { usercontext } from "../App";
 import { Link } from "react-router-dom";
 
 const MyOrders = () => {
-  const { user } = useContext(usercontext);
+  const {  user, addToCart } = useContext(usercontext);
   const [orders, setOrders] = useState([]);
 
   useEffect(() => {

@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import collection from '../Components/data';
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Filter from "./Filter";
-const Kid = ({ addToCart }) => {
+import { usercontext } from '../App';
+
+const Kid = () => {
+    const navigate = useNavigate();
+  const { user, addToCart } = useContext(usercontext);
     const items = collection[2]; // kids index
     const location = useLocation();
     const showFilter = location.pathname === "/kid-clothes";
@@ -36,15 +40,15 @@ const Kid = ({ addToCart }) => {
     }
     return (
         <div className="flex gap-6 px-4 py-8">
-           {showFilter && (
-        <Filter
-          setSelectedColor={setSelectedColor}
-          setSelectedSize={setSelectedSize}
-          setSelectedPrice={setSelectedPrice}
-          setSelectedRating={setSelectedRating}
-          setSortOption={setSortOption}
-        />
-      )}
+            {showFilter && (
+                <Filter
+                    setSelectedColor={setSelectedColor}
+                    setSelectedSize={setSelectedSize}
+                    setSelectedPrice={setSelectedPrice}
+                    setSelectedRating={setSelectedRating}
+                    setSortOption={setSortOption}
+                />
+            )}
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 flex-1">
                 {filteredItems.map(item => (
                     <div
@@ -79,18 +83,25 @@ const Kid = ({ addToCart }) => {
 
                             <div className="mt-auto flex gap-2">
                                 <button
-                                    onClick={() => addToCart(item)}
-                                    className="flex-1 py-2 bg-black text-white text-sm rounded border border-black hover:bg-white hover:text-black transition-all duration-200 ease-linear"
+                                    onClick={() => {
+                                        if (!user) {
+                                            alert("Please login first");
+                                            navigate("/login");
+                                            return;
+                                        }
+                                        addToCart(item);
+                                    }}
+                                    className="flex-1 py-2 bg-black text-white text-sm rounded hover:opacity-90 border border-black hover:bg-white hover:text-black transition-all duration-200 ease-linear"
                                 >
                                     Add
                                 </button>
 
                                 <Link
                                     to={`/buy/kids/${item.id}`}
-  state={{
-    type: "single",
-    product: { ...item, quantity: 1 }
-  }}
+                                    state={{
+                                        type: "single",
+                                        product: { ...item, quantity: 1 }
+                                    }}
                                     className="flex-1 py-2 border border-black text-black text-sm rounded text-center  hover:bg-black hover:text-white transition-all duration-200 ease-linear"
                                 >
                                     Buy

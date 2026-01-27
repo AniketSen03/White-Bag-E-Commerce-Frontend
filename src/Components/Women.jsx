@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import collection from '../Components/data';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Filter from "./Filter";
+import { usercontext } from '../App';
 
-const Women = ({ addToCart }) => {
+const Women = () => {
+  const navigate = useNavigate();
+  const { user, addToCart } = useContext(usercontext);
   const items = collection[1]; // women index
-const location = useLocation();
+  const location = useLocation();
   const showFilter = location.pathname === "/women-clothes";
 
   const [selectedColor, setSelectedColor] = useState(null);
@@ -39,7 +42,7 @@ const location = useLocation();
 
   return (
     <div className="flex gap-6 px-4 py-8">
-         {showFilter && (
+      {showFilter && (
         <Filter
           setSelectedColor={setSelectedColor}
           setSelectedSize={setSelectedSize}
@@ -83,7 +86,7 @@ const location = useLocation();
 
               <div className="mt-auto flex gap-2">
                 <button
-                   onClick={() => {
+                  onClick={() => {
                     if (!user) {
                       alert("Please login first");
                       navigate("/login");
@@ -98,10 +101,10 @@ const location = useLocation();
 
                 <Link
                   to={`/buy/women/${item.id}`}
-  state={{
-    type: "single",
-    product: { ...item, quantity: 1 }
-  }}
+                  state={{
+                    type: "single",
+                    product: { ...item, quantity: 1 }
+                  }}
                   className="flex-1 py-2 border border-black text-black text-sm rounded text-center hover:bg-black hover:text-white transition-all duration-200 ease-linear"
                 >
                   Buy
