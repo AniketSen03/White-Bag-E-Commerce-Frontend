@@ -1,13 +1,29 @@
 import React, { useContext, useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { usercontext } from "../App";
 
 const Header = () => {
-  const { user, setuser, cart } = useContext(usercontext);
+  const { user, setuser, cart, setCart } = useContext(usercontext);
   const [open, setOpen] = useState(false);
   const [dropdown, setDropdown] = useState(false);
   const dropRef = useRef(null);
+  const location = useLocation();
+  const navigate = useNavigate();
 
+  const logout = () => {
+    setuser(null);
+    setCart([]);              // 🔥 cart clear
+    localStorage.removeItem("user");
+    setDropdown(false);
+    navigate("/login");
+  };
+
+  // close mobile menu on route change
+  useEffect(() => {
+    setOpen(false);
+  }, [location.pathname]);
+
+  // close dropdown on outside click
   useEffect(() => {
     const close = (e) => {
       if (dropRef.current && !dropRef.current.contains(e.target)) {
@@ -17,6 +33,11 @@ const Header = () => {
     document.addEventListener("mousedown", close);
     return () => document.removeEventListener("mousedown", close);
   }, []);
+
+  // lock scroll when mobile menu open
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "auto";
+  }, [open]);
 
   return (
     <header className="bg-black text-white sticky top-0 z-50">
@@ -28,25 +49,20 @@ const Header = () => {
         </Link>
 
         {/* MOBILE ICON */}
-        <button
-          className="lg:hidden text-2xl"
-          onClick={() => setOpen(!open)}
-        >
+        <button className="lg:hidden text-2xl" onClick={() => setOpen(!open)}>
           ☰
         </button>
 
         {/* NAV */}
         <nav
           className={`
-            ${open ? "block" : "hidden"}
-            absolute top-full left-0 w-full bg-black
-            lg:static lg:block lg:w-auto
+            fixed inset-0 bg-black/95 z-40
+            transform transition-transform duration-300
+            ${open ? "translate-x-0" : "-translate-x-full"}
+            lg:static lg:translate-x-0 lg:bg-transparent lg:block
           `}
         >
-          <ul className="
-            flex flex-col gap-4 p-4
-            lg:flex-row lg:items-center lg:gap-6 lg:p-0
-          ">
+          <ul className="flex flex-col gap-6 p-6 pt-20 lg:flex-row lg:items-center lg:gap-6 lg:p-0 lg:pt-0">
             {[
               ["All", "/"],
               ["Electronics", "/electronic"],
@@ -58,17 +74,13 @@ const Header = () => {
               ["Contact", "/contact"],
             ].map(([name, path]) => (
               <li key={path}>
-                <Link
-                  to={path}
-                  onClick={() => setOpen(false)}
-                  className="block hover:text-gray-300"
-                >
+                <Link to={path} className="hover:text-gray-300">
                   {name}
                 </Link>
               </li>
             ))}
 
-            {/* LOGIN / USER */}
+            {/* USER / LOGIN */}
             {!user ? (
               <li>
                 <Link
@@ -88,13 +100,16 @@ const Header = () => {
                 </div>
 
                 {dropdown && (
-                  <div className="absolute right-0 mt-2 bg-white text-black rounded shadow w-32">
+                  <div className="absolute right-0 mt-2 bg-white text-black rounded shadow w-36">
+                    <Link
+                      to="/orders"
+                      className="block px-4 py-2 hover:bg-gray-100"
+                    >
+                      My Orders
+                    </Link>
                     <button
-                      onClick={() => {
-                        setuser(null);
-                        setDropdown(false);
-                      }}
-                      className="w-full px-4 py-2 hover:bg-gray-100 text-left"
+                      onClick={logout}
+                      className="w-full text-left px-4 py-2 hover:bg-gray-100"
                     >
                       Logout
                     </button>
@@ -107,11 +122,11 @@ const Header = () => {
             <li>
               <Link
                 to="/add_to_cart"
-                className="relative bg-white text-black px-4 py-1 rounded"
+                className="relative bg-white text-black px-4 py-1 rounded inline-flex items-center gap-1"
               >
                 Cart
                 {cart?.length > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-black text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                  <span className="bg-black text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
                     {cart.length}
                   </span>
                 )}

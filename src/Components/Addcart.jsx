@@ -1,13 +1,35 @@
-import React from "react";
+import React, { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { usercontext } from "../App";
+
 
 const AddCart = ({ cart, setCart }) => {
   const subtotal = cart.reduce(
-    (acc, item) => acc + Number(item.price || 0),
+    (acc, item) => acc + Number(item.price || 0) * (item.quantity || 1),
     0
   );
 
   const shipping = cart.length ? 40 : 0;
   const total = subtotal + shipping;
+  const navigate = useNavigate();
+  const { user } = useContext(usercontext);
+
+  const updateQty = (id, type) => {
+    setCart(prev =>
+      prev.map(item =>
+        item._id === id
+          ? {
+            ...item,
+            quantity:
+              type === "inc"
+                ? item.quantity + 1
+                : Math.max(1, item.quantity - 1),
+          }
+          : item
+      )
+    );
+  };
+
 
   const handleDelete = async (id) => {
     try {
@@ -51,7 +73,14 @@ const AddCart = ({ cart, setCart }) => {
                 </div>
 
                 <div className="flex items-center gap-6">
-                  <span className="font-semibold">₹{item.price}</span>
+                  <div className="flex items-center gap-3">
+                    <button className="px-2 border" onClick={() => updateQty(item._id, "dec")}>−</button>
+                    <span className="w-6 text-center">{item.quantity}</span>
+                    <button className="px-2 border" onClick={() => updateQty(item._id, "inc")}>+</button>
+
+                  </div>
+
+                  <span className="font-semibold">₹{item.price * item.quantity}</span>
                   <button
                     onClick={() => handleDelete(item._id)}
                     className="text-red-500 hover:text-red-700 text-lg"
@@ -84,9 +113,27 @@ const AddCart = ({ cart, setCart }) => {
           </div>
         </div>
 
-        <button className="w-full bg-white text-black mt-6 py-3 rounded font-semibold hover:opacity-90">
+        <button
+          onClick={() => {
+            if (!user) {
+              alert("Please login first");
+              navigate("/login");
+              return;
+            }
+            navigate("/buy/cart", {
+              state: {
+                type: "cart",
+                cart: cart
+              }
+            });
+
+
+          }}
+          className="w-full bg-white text-black mt-6 py-3 rounded font-semibold"
+        >
           Checkout
         </button>
+
       </div>
     </div>
   );

@@ -1,12 +1,15 @@
-// Men.jsx (Women.jsx / Kid.jsx similar, just change collection index and route)
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import collection from "../Components/data";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Filter from "./Filter";
+import { usercontext } from "../App";
 
-const Men = ({ addToCart }) => {
-  const items = collection[0]; // Men index
+const Men = () => {
+  const { addToCart, user } = useContext(usercontext);
+  const navigate = useNavigate();
+  const items = collection[0]; // MEN DATA
   const location = useLocation();
+
   const showFilter = location.pathname === "/men-clothes";
 
   const [selectedColor, setSelectedColor] = useState(null);
@@ -17,23 +20,39 @@ const Men = ({ addToCart }) => {
 
   let filteredItems = items
     .filter((item) =>
-      selectedColor ? item.color?.toLowerCase() === selectedColor.toLowerCase() : true
+      selectedColor
+        ? item.color?.toLowerCase() === selectedColor.toLowerCase()
+        : true
     )
     .filter((item) =>
-      selectedSize ? item.size.includes(selectedSize) : true
+      selectedSize ? item.size?.includes(selectedSize) : true
     )
     .filter((item) =>
-      selectedPrice ? parseFloat(item.price.replace(/[^\d.]/g, "")) <= selectedPrice : true
+      selectedPrice
+        ? Number(item.price.replace(/[^\d]/g, "")) <= selectedPrice
+        : true
     )
     .filter((item) =>
       selectedRating ? item.rating >= selectedRating : true
     );
 
   if (sortOption === "low") {
-    filteredItems.sort((a, b) => parseFloat(a.price.replace(/[^\d.]/g, "")) - parseFloat(b.price.replace(/[^\d.]/g, "")));
-  } else if (sortOption === "high") {
-    filteredItems.sort((a, b) => parseFloat(b.price.replace(/[^\d.]/g, "")) - parseFloat(a.price.replace(/[^\d.]/g, "")));
-  } else if (sortOption === "rating") {
+    filteredItems.sort(
+      (a, b) =>
+        Number(a.price.replace(/[^\d]/g, "")) -
+        Number(b.price.replace(/[^\d]/g, ""))
+    );
+  }
+
+  if (sortOption === "high") {
+    filteredItems.sort(
+      (a, b) =>
+        Number(b.price.replace(/[^\d]/g, "")) -
+        Number(a.price.replace(/[^\d]/g, ""))
+    );
+  }
+
+  if (sortOption === "rating") {
     filteredItems.sort((a, b) => b.rating - a.rating);
   }
 
@@ -53,42 +72,59 @@ const Men = ({ addToCart }) => {
         {filteredItems.map((item) => (
           <div
             key={item.id}
-            className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden flex flex-col"
+            className="bg-white rounded-lg shadow hover:shadow-lg transition flex flex-col"
           >
             <Link to={`/men/${item.id}`}>
               <img
                 src={item.image}
                 alt={item.title}
-                className="h-56 w-full object-cover"
+                className="h-56 w-full object-cover rounded-t"
               />
             </Link>
 
             <div className="p-4 flex flex-col flex-grow">
+              {/* NAME */}
               <h2 className="font-semibold text-base mb-1 line-clamp-1">
                 {item.title}
               </h2>
 
+              {/* DESCRIPTION */}
               <p className="text-sm text-gray-500 line-clamp-2 mb-2">
                 {item.description}
               </p>
 
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-bold text-green-600">{item.price}</span>
-                <span className="text-sm text-orange-400 font-semibold">
+              {/* PRICE + RATING */}
+              <div className="flex justify-between items-center mb-3">
+                <span className="font-bold text-green-600">
+                  {item.price}
+                </span>
+                <span className="text-orange-400 font-semibold">
                   {item.rating}★
                 </span>
               </div>
 
+              {/* ACTIONS */}
               <div className="mt-auto flex gap-2">
                 <button
-                  onClick={() => addToCart(item)}
-                  className="flex-1 py-2 bg-black text-white text-sm rounded border border-black hover:bg-white hover:text-black transition-all duration-200 ease-linear"
+                  onClick={() => {
+                    if (!user) {
+                      alert("Please login first");
+                      navigate("/login");
+                      return;
+                    }
+                    addToCart(item);
+                  }}
+                  className="flex-1 py-2 bg-black text-white text-sm rounded hover:opacity-90 border border-black hover:bg-white hover:text-black transition-all duration-200 ease-linear"
                 >
                   Add
                 </button>
 
                 <Link
                   to={`/buy/men/${item.id}`}
+                  state={{
+                    type: "single",
+                    product: { ...item, quantity: 1 }
+                  }}
                   className="flex-1 py-2 border border-black text-black text-sm rounded text-center hover:bg-black hover:text-white transition-all duration-200 ease-linear"
                 >
                   Buy

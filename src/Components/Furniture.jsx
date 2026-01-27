@@ -38,7 +38,7 @@ const Furniture = ({ addToCart }) => {
 
   return (
     <div className="flex gap-6 px-4 py-8">
-       {showFilter && (
+      {showFilter && (
         <Filter
           setSelectedColor={setSelectedColor}
           setSelectedSize={setSelectedSize}
@@ -89,6 +89,10 @@ const Furniture = ({ addToCart }) => {
 
                 <Link
                   to={`/buy/furniture/${item.id}`}
+                  state={{
+                    type: "single",
+                    product: { ...item, quantity: 1 }
+                  }}
                   className="flex-1 py-2 border border-black text-black text-sm rounded text-center hover:bg-black hover:text-white transition-all duration-200 ease-linear"
                 >
                   Buy

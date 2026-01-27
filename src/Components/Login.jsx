@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { usercontext } from "../App";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const Api_url = 'http://localhost:3000/login';
@@ -9,7 +9,7 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { setuser } = useContext(usercontext);
-
+  const navigate = useNavigate();
   const submitted = async (e) => {
     e.preventDefault();
     try {
@@ -17,7 +17,9 @@ const Login = () => {
       alert(res.data.message);
       setEmail('');
       setPassword('');
-      setuser(res.data);
+      setuser(res.data.user);
+      localStorage.setItem("user", JSON.stringify(res.data.user))
+navigate("/");
     } catch (err) {
       alert(err.response?.data?.message || 'Login failed');
     }

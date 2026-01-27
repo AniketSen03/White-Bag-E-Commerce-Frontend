@@ -88,7 +88,11 @@ const Electronic = ({ addToCart }) => {
                 </button>
 
                 <Link
-                  to={`/buy/electronics/${item.id}`}
+                   to={`/buy/electronics/${item.id}`}
+  state={{
+    type: "single",
+    product: { ...item, quantity: 1 }
+  }}
                   className="flex-1 py-2 border border-black text-black text-sm rounded text-center  hover:bg-black hover:text-white transition-all duration-200 ease-linear"
                 >
                   Buy

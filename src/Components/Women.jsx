@@ -83,7 +83,14 @@ const location = useLocation();
 
               <div className="mt-auto flex gap-2">
                 <button
-                  onClick={() => addToCart(item)}
+                   onClick={() => {
+                    if (!user) {
+                      alert("Please login first");
+                      navigate("/login");
+                      return;
+                    }
+                    addToCart(item);
+                  }}
                   className="flex-1 py-2 bg-black text-white text-sm rounded hover:opacity-90 border border-black hover:bg-white hover:text-black transition-all duration-200 ease-linear"
                 >
                   Add
@@ -91,6 +98,10 @@ const location = useLocation();
 
                 <Link
                   to={`/buy/women/${item.id}`}
+  state={{
+    type: "single",
+    product: { ...item, quantity: 1 }
+  }}
                   className="flex-1 py-2 border border-black text-black text-sm rounded text-center hover:bg-black hover:text-white transition-all duration-200 ease-linear"
                 >
                   Buy
