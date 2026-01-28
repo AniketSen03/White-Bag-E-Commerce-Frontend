@@ -67,6 +67,17 @@ if (!checkoutItems.length) {
     } else {
       navigate("/myorders");
     }
+    setOrders(prev => [
+  ...prev,
+  {
+    id: Date.now(),
+    items: checkoutItems,
+    total,
+    date: new Date().toLocaleDateString(),
+    status: "Confirmed"
+  }
+]);
+
   };
 
   // 🎉 PAYMENT SUCCESS SCREEN

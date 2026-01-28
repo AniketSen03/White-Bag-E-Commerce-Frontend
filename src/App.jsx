@@ -17,6 +17,8 @@ import Signin from "./Components/Sign";
 import Buy from "./Components/Buy";
 import MyOrders from "./Components/MyOrders";
 import OrderDetails from "./Components/OrderDetails";
+import Wishlist from "./Components/Wishlist";
+import Search from "./Components/Search";
 
 export const usercontext = createContext();
 
@@ -26,13 +28,37 @@ const App = () => {
     const saved = localStorage.getItem("user");
     return saved ? JSON.parse(saved) : null;
   });
+  const [wishlist, setWishlist] = useState(
+    JSON.parse(localStorage.getItem("wishlist")) || []
+  );
+  const [orders, setOrders] = useState(
+    JSON.parse(localStorage.getItem("orders")) || []
+  );
 
   useEffect(() => {
-    if (!user) {
-      setCart([]);
-      return;
-    }
-  });
+    localStorage.setItem("orders", JSON.stringify(orders));
+  }, [orders]);
+
+  useEffect(() => {
+    localStorage.setItem("wishlist", JSON.stringify(wishlist));
+  }, [wishlist]);
+
+  const addToWishlist = (product) => {
+    setWishlist(prev => {
+      const exists = prev.find(p => p.id === product.id);
+      return exists ? prev : [...prev, product];
+    });
+  };
+
+  const removeFromWishlist = (id) => {
+    setWishlist(prev => prev.filter(p => p.id !== id));
+  };
+
+
+useEffect(() => {
+  if (!user) setCart([]);
+}, [user]);
+
 
 
   useEffect(() => {
@@ -91,7 +117,7 @@ const App = () => {
       description: item.description,
       image: item.image,
       price: parseFloat(item.price.replace(/[^\d.]/g, "")),
-      quantity: 1,
+      quantity: item.quantity || 1,
     };
 
 
@@ -115,6 +141,12 @@ const App = () => {
         cart,
         setCart,
         addToCart,
+        wishlist,
+        addToWishlist,
+        removeFromWishlist,
+        orders,
+        setOrders
+
       }}
     >
       <BrowserRouter>
@@ -138,9 +170,9 @@ const App = () => {
           <Route path="/buy/cart" element={<Buy />} />
           <Route path="/myorders" element={<MyOrders />} />
           <Route path="/order/:id" element={<OrderDetails />} />
-
+          <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/search/:query" element={<Search />} />
         </Routes>
-
         <Footer />
       </BrowserRouter>
     </usercontext.Provider>

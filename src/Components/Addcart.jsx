@@ -14,6 +14,14 @@ const AddCart = ({ cart, setCart }) => {
   const navigate = useNavigate();
   const { user } = useContext(usercontext);
 
+if (!user) {
+  return (
+    <p className="text-center mt-20 text-xl">
+      Please login to view cart
+    </p>
+  );
+}
+
   const updateQty = (id, type) => {
     setCart(prev =>
       prev.map(item =>

@@ -17,6 +17,7 @@ const Header = () => {
     setDropdown(false);
     navigate("/login");
   };
+  const [search, setSearch] = useState("");
 
   // close mobile menu on route change
   useEffect(() => {
@@ -56,13 +57,45 @@ const Header = () => {
         {/* NAV */}
         <nav
           className={`
-            fixed inset-0 bg-black/95 z-40
-            transform transition-transform duration-300
-            ${open ? "translate-x-0" : "-translate-x-full"}
-            lg:static lg:translate-x-0 lg:bg-transparent lg:block
-          `}
+    fixed inset-0 bg-black/95 z-40
+    transform transition-transform duration-300
+    ${open ? "translate-x-0" : "-translate-x-full"}
+    lg:static lg:translate-x-0 lg:bg-transparent
+  `}
         >
-          <ul className="flex flex-col gap-6 p-6 pt-20 lg:flex-row lg:items-center lg:gap-6 lg:p-0 lg:pt-0">
+          {/* MOBILE SEARCH */}
+          <div className="p-4 lg:hidden">
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && search.trim()) {
+                  navigate(`/search/${search}`);
+                  setOpen(false);
+                }
+              }}
+              placeholder="Search products..."
+              className="w-full px-4 py-2 rounded text-black"
+            />
+          </div>
+
+          <ul className="flex flex-col gap-6 p-6 lg:flex-row lg:items-center lg:gap-6">
+            {/* DESKTOP SEARCH */}
+            <li className="hidden lg:block">
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && search.trim()) {
+                    navigate(`/search/${search}`);
+                  }
+                }}
+                placeholder="Search products..."
+                className="px-4 py-1 rounded text-black"
+              />
+            </li>
+
+            {/* LINKS */}
             {[
               ["All", "/"],
               ["Electronics", "/electronic"],
@@ -70,8 +103,6 @@ const Header = () => {
               ["Women", "/women-clothes"],
               ["Kids", "/kid-clothes"],
               ["Furniture", "/furniture"],
-              ["About", "/about"],
-              ["Contact", "/contact"],
             ].map(([name, path]) => (
               <li key={path}>
                 <Link to={path} className="hover:text-gray-300">
@@ -80,13 +111,10 @@ const Header = () => {
               </li>
             ))}
 
-            {/* USER / LOGIN */}
+            {/* USER */}
             {!user ? (
               <li>
-                <Link
-                  to="/login"
-                  className="bg-white text-black px-4 py-1 rounded"
-                >
+                <Link to="/login" className="bg-white text-black px-4 py-1 rounded">
                   Login
                 </Link>
               </li>
@@ -94,18 +122,18 @@ const Header = () => {
               <li className="relative" ref={dropRef}>
                 <div
                   onClick={() => setDropdown(!dropdown)}
-                  className="bg-white text-black w-9 h-9 rounded-full flex items-center justify-center cursor-pointer font-semibold"
+                  className="bg-white text-black w-9 h-9 rounded-full flex items-center justify-center cursor-pointer"
                 >
                   {user.name?.[0]?.toUpperCase()}
                 </div>
 
                 {dropdown && (
-                  <div className="absolute right-0 mt-2 bg-white text-black rounded shadow w-36">
-                    <Link
-                      to="/orders"
-                      className="block px-4 py-2 hover:bg-gray-100"
-                    >
+                  <div className="absolute right-0 mt-2 bg-white text-black rounded shadow w-40">
+                    <Link to="/orders" className="block px-4 py-2 hover:bg-gray-100">
                       My Orders
+                    </Link>
+                    <Link to="/wishlist" className="block px-4 py-2 hover:bg-gray-100">
+                      Wishlist
                     </Link>
                     <button
                       onClick={logout}
@@ -122,10 +150,10 @@ const Header = () => {
             <li>
               <Link
                 to="/add_to_cart"
-                className="relative bg-white text-black px-4 py-1 rounded inline-flex items-center gap-1"
+                className="bg-white text-black px-4 py-1 rounded flex gap-1"
               >
                 Cart
-                {cart?.length > 0 && (
+                {cart.length > 0 && (
                   <span className="bg-black text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
                     {cart.length}
                   </span>
@@ -134,6 +162,7 @@ const Header = () => {
             </li>
           </ul>
         </nav>
+
       </div>
     </header>
   );
