@@ -28,28 +28,38 @@ const App = () => {
   });
 
   useEffect(() => {
-  if (!user) {
-    setCart([]);
-  }
-}, [user]);
+    if (!user) {
+      setCart([]);
+      return;
+    }
+  });
 
 
-  // 🔹 Load cart from DB when app loads
   useEffect(() => {
+    if (!user) return;
+
     const fetchCart = async () => {
-      const res = await fetch("http://localhost:3000/add_to_cart");
+      const res = await fetch(
+        `http://localhost:3000/add_to_cart?userId=${user._id}`
+      );
       const data = await res.json();
       setCart(data);
     };
+
     fetchCart();
-  }, []);
+  }, [user]);
+
 
   // 🔹 Persist user
   useEffect(() => {
-    if (user) localStorage.setItem("user", JSON.stringify(user));
-    if (!user) setCart([]);
-    else localStorage.removeItem("user");
+    if (user) {
+      localStorage.setItem("user", JSON.stringify(user));
+    } else {
+      localStorage.removeItem("user");
+      setCart([]);
+    }
   }, [user]);
+
 
   // 🔹 ADD TO CART (LOGIN REQUIRED)
   // 🔹 ADD TO CART (NO DUPLICATE, ONLY QTY INCREASE)
@@ -75,15 +85,15 @@ const App = () => {
     }
 
     const cleaned = {
+      userId: user._id,
+      productId: item.id,
       title: item.title,
       description: item.description,
       image: item.image,
-      price: Number(
-        String(item.price).replace(/[^\d]/g, "")
-      ),
+      price: parseFloat(item.price.replace(/[^\d.]/g, "")),
       quantity: 1,
-      userId: user._id,
     };
+
 
     const res = await fetch("http://localhost:3000/add_to_cart", {
       method: "POST",
@@ -125,6 +135,7 @@ const App = () => {
           <Route path="/signin" element={<Signin />} />
           <Route path="/buy/:category/:id" element={<Buy />} />
           <Route path="/orders" element={<MyOrders />} />
+          <Route path="/buy/cart" element={<Buy />} />
           <Route path="/myorders" element={<MyOrders />} />
           <Route path="/order/:id" element={<OrderDetails />} />
 

@@ -26,12 +26,15 @@ const Param = () => {
   furniture: 4,
   };
 
-  const items = collection[categoryIndex] || [];
-  const product = items.find(p => Number(p.id) === Number(id));
+  const index = categoryIndex[category];
 
-  if (!product) {
-    return <p className="text-center mt-20 text-xl">Product not found 😕</p>;
-  }
+if (index === undefined) {
+  return <p className="text-center mt-20 text-xl">Product not found 😕</p>;
+}
+
+const items = collection[index];
+const product = items.find(p => Number(p.id) === Number(id));
+
 
   // 🔹 Recommendations (same category, excluding current product)
   const recommendations = items.filter(p => p.id !== product.id).slice(0, 4);

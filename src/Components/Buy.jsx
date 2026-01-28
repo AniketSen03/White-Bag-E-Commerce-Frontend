@@ -11,22 +11,25 @@ const Buy = () => {
   const [form, setForm] = useState({});
   const [success, setSuccess] = useState(false);
 
-  useEffect(() => {
-    if (!user) navigate("/login");
-  }, [user]);
+useEffect(() => {
+  if (user === null) navigate("/login");
+}, [user]);
 
-  const { type, product, cart: stateCart } = location.state || {};
 
-  const checkoutItems =
-    type === "single" && product
-      ? [{ ...product, quantity: 1 }]
-      : stateCart?.length
-      ? stateCart
-      : cart;
+const { type, product, cart: stateCart } = location.state || {};
 
-  if (!checkoutItems.length) {
-    return <h2 className="text-center mt-20">Product not found</h2>;
-  }
+let checkoutItems = [];
+
+if (type === "single" && product) {
+  checkoutItems = [{ ...product, quantity: 1 }];
+} else if (type === "cart" && stateCart?.length) {
+  checkoutItems = stateCart;
+}
+
+if (!checkoutItems.length) {
+  return <h2 className="text-center mt-20">Product not found</h2>;
+}
+
 
   const getPrice = (price) =>
     typeof price === "number"
