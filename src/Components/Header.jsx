@@ -6,25 +6,27 @@ const Header = () => {
   const { user, setuser, cart, setCart } = useContext(usercontext);
   const [open, setOpen] = useState(false);
   const [dropdown, setDropdown] = useState(false);
+  const [search, setSearch] = useState("");
+
   const dropRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
 
+  // 🔐 logout
   const logout = () => {
     setuser(null);
-    setCart([]);              // 🔥 cart clear
+    setCart([]);
     localStorage.removeItem("user");
     setDropdown(false);
     navigate("/login");
   };
-  const [search, setSearch] = useState("");
 
-  // close mobile menu on route change
+  // close menu on route change
   useEffect(() => {
     setOpen(false);
   }, [location.pathname]);
 
-  // close dropdown on outside click
+  // outside click for dropdown
   useEffect(() => {
     const close = (e) => {
       if (dropRef.current && !dropRef.current.contains(e.target)) {
@@ -35,9 +37,9 @@ const Header = () => {
     return () => document.removeEventListener("mousedown", close);
   }, []);
 
-  // lock scroll when mobile menu open
+  // lock body scroll
   useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "auto";
+    document.body.style.overflow = open ? "hidden" : "";
   }, [open]);
 
   return (
@@ -49,22 +51,33 @@ const Header = () => {
           White Bag
         </Link>
 
-        {/* MOBILE ICON */}
-        <button className="lg:hidden text-2xl" onClick={() => setOpen(!open)}>
+        {/* HAMBURGER */}
+        <button
+          className="lg:hidden text-2xl"
+          onClick={() => setOpen(true)}
+        >
           ☰
         </button>
 
         {/* NAV */}
         <nav
           className={`
-    fixed inset-0 bg-black/95 z-40
-    transform transition-transform duration-300
-    ${open ? "translate-x-0" : "-translate-x-full"}
-    lg:static lg:translate-x-0 lg:bg-transparent
-  `}
+            fixed top-0 left-0 h-full w-full bg-black z-40
+            transform transition-transform duration-300
+            ${open ? "translate-x-0" : "-translate-x-full"}
+            lg:static lg:h-auto lg:w-auto lg:translate-x-0 lg:bg-transparent
+          `}
         >
+          {/* CLOSE BUTTON */}
+          <button
+            className="absolute top-4 right-4 text-3xl z-50 lg:hidden"
+            onClick={() => setOpen(false)}
+          >
+            ✕
+          </button>
+
           {/* MOBILE SEARCH */}
-          <div className="p-4 lg:hidden">
+          <div className="p-4 mt-10 lg:hidden">
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -79,7 +92,13 @@ const Header = () => {
             />
           </div>
 
-          <ul className="flex flex-col gap-6 p-6 lg:flex-row lg:items-center lg:gap-6">
+          {/* LINKS */}
+          <ul
+            className="
+              flex flex-col gap-4 px-6
+              lg:flex-row lg:items-center lg:gap-6 lg:p-0
+            "
+          >
             {/* DESKTOP SEARCH */}
             <li className="hidden lg:block">
               <input
@@ -95,7 +114,6 @@ const Header = () => {
               />
             </li>
 
-            {/* LINKS */}
             {[
               ["All", "/"],
               ["Electronics", "/electronic"],
@@ -105,7 +123,10 @@ const Header = () => {
               ["Furniture", "/furniture"],
             ].map(([name, path]) => (
               <li key={path}>
-                <Link to={path} className="hover:text-gray-300">
+                <Link
+                  to={path}
+                  className="block py-2 border-b border-gray-700 lg:border-none hover:text-gray-300"
+                >
                   {name}
                 </Link>
               </li>
@@ -114,7 +135,10 @@ const Header = () => {
             {/* USER */}
             {!user ? (
               <li>
-                <Link to="/login" className="bg-white text-black px-4 py-1 rounded">
+                <Link
+                  to="/login"
+                  className="block bg-white text-black px-4 py-2 rounded text-center"
+                >
                   Login
                 </Link>
               </li>
@@ -150,7 +174,7 @@ const Header = () => {
             <li>
               <Link
                 to="/add_to_cart"
-                className="bg-white text-black px-4 py-1 rounded flex gap-1"
+                className="flex items-center gap-2 bg-white text-black px-4 py-2 rounded justify-center"
               >
                 Cart
                 {cart.length > 0 && (
@@ -162,7 +186,6 @@ const Header = () => {
             </li>
           </ul>
         </nav>
-
       </div>
     </header>
   );

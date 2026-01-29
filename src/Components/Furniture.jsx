@@ -1,15 +1,16 @@
-import React, { useContext, useState } from 'react';
-import collection from '../Components/data';
+import React, { useContext, useState } from "react";
+import collection from "../Components/data";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Filter from "./Filter";
-import { usercontext } from '../App';
+import { usercontext } from "../App";
 
 const Furniture = () => {
+  const { addToCart, user } = useContext(usercontext);
   const navigate = useNavigate();
-  const { user, addToCart } = useContext(usercontext);
-  const items = collection[4]; // furniture index
   const location = useLocation();
-  const showFilter = location.pathname === "/men-clothes";
+
+  const items = collection[4]; // FURNITURE DATA
+  const showFilter = location.pathname === "/furniture";
 
   const [selectedColor, setSelectedColor] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
@@ -17,100 +18,134 @@ const Furniture = () => {
   const [selectedRating, setSelectedRating] = useState(null);
   const [sortOption, setSortOption] = useState("");
 
-  let filteredItems = items
-    .filter((item) =>
-      selectedColor ? item.color?.toLowerCase() === selectedColor.toLowerCase() : true
+  let filteredItems = [...items]
+    .filter(i =>
+      selectedColor ? i.color?.toLowerCase() === selectedColor.toLowerCase() : true
     )
-    .filter((item) =>
-      selectedSize ? item.size.includes(selectedSize) : true
+    .filter(i =>
+      selectedSize ? i.size?.includes(selectedSize) : true
     )
-    .filter((item) =>
-      selectedPrice ? parseFloat(item.price.replace(/[^\d.]/g, "")) <= selectedPrice : true
+    .filter(i =>
+      selectedPrice
+        ? Number(i.price.replace(/[^\d]/g, "")) <= selectedPrice
+        : true
     )
-    .filter((item) =>
-      selectedRating ? item.rating >= selectedRating : true
+    .filter(i =>
+      selectedRating ? i.rating >= selectedRating : true
     );
 
   if (sortOption === "low") {
-    filteredItems.sort((a, b) => parseFloat(a.price.replace(/[^\d.]/g, "")) - parseFloat(b.price.replace(/[^\d.]/g, "")));
-  } else if (sortOption === "high") {
-    filteredItems.sort((a, b) => parseFloat(b.price.replace(/[^\d.]/g, "")) - parseFloat(a.price.replace(/[^\d.]/g, "")));
-  } else if (sortOption === "rating") {
+    filteredItems.sort(
+      (a, b) =>
+        Number(a.price.replace(/[^\d]/g, "")) -
+        Number(b.price.replace(/[^\d]/g, ""))
+    );
+  }
+  if (sortOption === "high") {
+    filteredItems.sort(
+      (a, b) =>
+        Number(b.price.replace(/[^\d]/g, "")) -
+        Number(a.price.replace(/[^\d]/g, ""))
+    );
+  }
+  if (sortOption === "rating") {
     filteredItems.sort((a, b) => b.rating - a.rating);
   }
 
   return (
-    <div className="flex gap-6 px-4 py-8">
+    <div className="max-w-7xl mx-auto px-4 py-6">
+      {/* MOBILE FILTER */}
       {showFilter && (
-        <Filter
-          setSelectedColor={setSelectedColor}
-          setSelectedSize={setSelectedSize}
-          setSelectedPrice={setSelectedPrice}
-          setSelectedRating={setSelectedRating}
-          setSortOption={setSortOption}
-        />
+        <div className="lg:hidden mb-4">
+          <Filter
+            setSelectedColor={setSelectedColor}
+            setSelectedSize={setSelectedSize}
+            setSelectedPrice={setSelectedPrice}
+            setSelectedRating={setSelectedRating}
+            setSortOption={setSortOption}
+          />
+        </div>
       )}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 flex-1">
-        {filteredItems.map(item => (
-          <div
-            key={item.id}
-            className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden flex flex-col"
-          >
-            <Link to={`/furniture/${item.id}`}>
-              <img
-                src={item.image}
-                alt={item.title}
-                className="h-56 w-full object-cover"
-              />
-            </Link>
 
-            <div className="p-4 flex flex-col flex-grow">
-              <h2 className="font-semibold text-base mb-1 line-clamp-1">
-                {item.title}
-              </h2>
+      <div className="lg:flex gap-6">
+        {/* DESKTOP FILTER */}
+        {showFilter && (
+          <div className="hidden lg:block w-64 shrink-0">
+            <Filter
+              setSelectedColor={setSelectedColor}
+              setSelectedSize={setSelectedSize}
+              setSelectedPrice={setSelectedPrice}
+              setSelectedRating={setSelectedRating}
+              setSortOption={setSortOption}
+            />
+          </div>
+        )}
 
-              <p className="text-sm text-gray-500 line-clamp-2 mb-2">
-                {item.description}
-              </p>
+        {/* PRODUCTS */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 flex-1">
+          {filteredItems.map(item => (
+            <div
+              key={item.id}
+              className="bg-white rounded-lg shadow hover:shadow-lg transition flex flex-col"
+            >
+              <Link to={`/furniture/${item.id}`} className="relative">
+                {/* STICKER */}
+                {item.rating >= 4.5 && (
+                  <span className="absolute top-2 left-2 bg-purple-600 text-white text-xs px-2 py-1 rounded">
+                    Premium
+                  </span>
+                )}
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  className="h-48 w-full object-cover rounded-t"
+                />
+              </Link>
 
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-bold text-green-600">
-                  {item.price}
-                </span>
-                <span className="text-sm text-orange-400 font-semibold">
-                  {item.rating}★
-                </span>
-              </div>
+              <div className="p-3 flex flex-col flex-grow">
+                <h2 className="font-semibold text-sm line-clamp-1">
+                  {item.title}
+                </h2>
 
-              <div className="mt-auto flex gap-2">
-                <button
-                  onClick={() => {
-                    if (!user) {
-                      alert("Please login first");
-                      navigate("/login");
-                      return;
-                    }
-                    addToCart(item);
-                  }}
-                  className="flex-1 py-2 bg-black text-white text-sm rounded hover:opacity-90 border border-black hover:bg-white hover:text-black transition-all duration-200 ease-linear"
-                >
-                  Add
-                </button>
+                <p className="text-xs text-gray-500 line-clamp-2 mt-1">
+                  {item.description}
+                </p>
 
-                <Link
-                  to={`/buy/furniture/${item.id}`}
-                  state={{
-                    type: "single",
-                    product: { ...item, quantity: 1 }
-                  }}
-                  className="flex-1 py-2 border border-black text-black text-sm rounded text-center hover:bg-black hover:text-white transition-all duration-200 ease-linear"
-                >
-                  Buy
-                </Link>
+                <div className="flex justify-between items-center mt-2">
+                  <span className="font-bold text-green-600 text-sm">
+                    {item.price}
+                  </span>
+                  <span className="text-orange-500 text-xs font-semibold">
+                    {item.rating}★
+                  </span>
+                </div>
+
+                <div className="mt-auto flex gap-2 pt-3">
+                  <button
+                    onClick={() => {
+                      if (!user) {
+                        navigate("/login");
+                        return;
+                      }
+                      addToCart(item);
+                    }}
+                    className="flex-1 bg-black text-white text-xs py-2 rounded"
+                  >
+                    Add
+                  </button>
+
+                  <Link
+                    to={`/buy/furniture/${item.id}`}
+                    state={{ type: "single", product: { ...item, quantity: 1 } }}
+                    className="flex-1 border border-black text-black text-xs py-2 rounded text-center"
+                  >
+                    Buy
+                  </Link>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
