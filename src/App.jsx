@@ -66,7 +66,7 @@ useEffect(() => {
 
     const fetchCart = async () => {
       const res = await fetch(
-        `http://localhost:3000/add_to_cart?userId=${user._id}`
+        `https://white-bag-e-commerce-backend.vercel.app/add_to_cart?userId=${user._id}`
       );
       const data = await res.json();
       setCart(data);
@@ -121,7 +121,7 @@ useEffect(() => {
     };
 
 
-    const res = await fetch("http://localhost:3000/add_to_cart", {
+    const res = await fetch("https://white-bag-e-commerce-backend.vercel.app/add_to_cart", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(cleaned),

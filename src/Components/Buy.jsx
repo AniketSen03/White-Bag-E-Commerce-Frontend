@@ -46,7 +46,7 @@ if (!checkoutItems.length) {
   const total = subtotal + gst + delivery;
 
   const placeOrder = async () => {
-    await fetch("http://localhost:3000/orders", {
+    await fetch("https://white-bag-e-commerce-backend.vercel.app/orders", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

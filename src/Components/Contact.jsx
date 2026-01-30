@@ -14,7 +14,7 @@ const Contact = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await axios.post("http://localhost:3000/contact", formData);
+    await axios.post("https://white-bag-e-commerce-backend.vercel.app/contact", formData);
     alert("Message sent");
     setFormData({ name: "", email: "", message: "" });
   };

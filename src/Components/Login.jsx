@@ -3,7 +3,7 @@ import { usercontext } from "../App";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const Api_url = 'http://localhost:3000/login';
+const Api_url = 'https://white-bag-e-commerce-backend.vercel.app/login';
 
 const Login = () => {
   const [email, setEmail] = useState('');

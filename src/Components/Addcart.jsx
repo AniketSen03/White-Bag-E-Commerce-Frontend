@@ -41,7 +41,7 @@ if (!user) {
 
   const handleDelete = async (id) => {
     try {
-      await fetch(`http://localhost:3000/add_to_cart/${id}`, {
+      await fetch(`https://white-bag-e-commerce-backend.vercel.app/add_to_cart/${id}`, {
         method: "DELETE",
       });
       setCart(cart.filter((item) => item._id !== id));

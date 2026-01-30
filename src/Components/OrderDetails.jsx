@@ -7,7 +7,7 @@ const OrderDetails = () => {
 
   useEffect(() => {
     if (!id) return;
-    fetch(`http://localhost:3000/orders/detail/${id}`)
+    fetch(`https://white-bag-e-commerce-backend.vercel.app/orders/detail/${id}`)
        .then(res => res.json())
     .then(setOrder);
   }, [id]);
