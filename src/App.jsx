@@ -13,7 +13,7 @@ import Contact from "./Components/Contact";
 import AddCart from "./Components/Addcart";
 import Param from "./Components/Param";
 import Login from "./Components/Login";
-import Signin from "./Components/Sign";
+import Signin from "./Components/Signin";
 import Buy from "./Components/Buy";
 import MyOrders from "./Components/MyOrders";
 import OrderDetails from "./Components/OrderDetails";
