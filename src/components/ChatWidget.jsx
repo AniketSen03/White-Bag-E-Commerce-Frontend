@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { MessageCircle, Send, Sparkles, X } from 'lucide-react';
 import { api } from '../lib/api';
 import { inr } from '../lib/format';
-import { Spinner } from './ui';
+import { Spinner } from './ui.jsx';
 import ProductImage from './ProductImage';
 
 const SUGGESTIONS = ['Shaadi ke liye kuch suggest karo', 'Best phone under ₹15,000', 'Gift for my mother'];
