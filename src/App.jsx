@@ -1,182 +1,57 @@
-import React, { createContext, useEffect, useState } from "react";
-import Kid from "./Components/Kid";
-import Header from "./Components/Header";
-import Men from "./Components/Men";
-import Women from "./Components/Women";
-import Furniture from "./Components/Furniture";
-import Electronic from "./Components/Electronic";
-import Footer from "./Components/Footer";
-import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
-import Home from "./Components/Home";
-import About from "./Components/About";
-import Contact from "./Components/Contact";
-import AddCart from "./Components/Addcart";
-import Param from "./Components/Param";
-import Login from "./Components/Login";
-import Signin from "./Components/Signin";
-import Buy from "./Components/Buy";
-import MyOrders from "./Components/MyOrders";
-import OrderDetails from "./Components/OrderDetails";
-import Wishlist from "./Components/Wishlist";
-import Search from "./Components/Search";
+import { lazy, Suspense } from 'react';
+import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
+import Layout from './components/Layout';
+import { PageLoader } from './components/ui';
+import { useAuth } from './context/AuthContext';
 
-export const usercontext = createContext();
+import Home from './pages/Home';
+import Shop from './pages/Shop';
+import Product from './pages/Product';
+import Auth from './pages/Auth';
 
-const App = () => {
-  const [cart, setCart] = useState([]);
-  const [user, setuser] = useState(() => {
-    const saved = localStorage.getItem("user");
-    return saved ? JSON.parse(saved) : null;
-  });
-  const [wishlist, setWishlist] = useState(
-    JSON.parse(localStorage.getItem("wishlist")) || []
-  );
-  const [orders, setOrders] = useState(
-    JSON.parse(localStorage.getItem("orders")) || []
-  );
+// pages used less often are loaded on demand to keep the first load small
+const Search = lazy(() => import('./pages/Search'));
+const Cart = lazy(() => import('./pages/Cart'));
+const Checkout = lazy(() => import('./pages/Checkout'));
+const Orders = lazy(() => import('./pages/Orders'));
+const OrderDetail = lazy(() => import('./pages/OrderDetail'));
+const Wishlist = lazy(() => import('./pages/Wishlist'));
+const Contact = lazy(() => import('./pages/Contact'));
+const About = lazy(() => import('./pages/About'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
-  useEffect(() => {
-    localStorage.setItem("orders", JSON.stringify(orders));
-  }, [orders]);
+// Pages inside this wrapper need a logged-in user; others are sent to /login and come back after
+function RequireAuth() {
+  const { user, loading } = useAuth();
+  const location = useLocation();
+  if (loading) return <PageLoader />;
+  return user ? <Outlet /> : <Navigate to="/login" replace state={{ from: location }} />;
+}
 
-  useEffect(() => {
-    localStorage.setItem("wishlist", JSON.stringify(wishlist));
-  }, [wishlist]);
-
-  const addToWishlist = (product) => {
-    setWishlist(prev => {
-      const exists = prev.find(p => p.id === product.id);
-      return exists ? prev : [...prev, product];
-    });
-  };
-
-  const removeFromWishlist = (id) => {
-    setWishlist(prev => prev.filter(p => p.id !== id));
-  };
-
-
-useEffect(() => {
-  if (!user) setCart([]);
-}, [user]);
-
-
-
-  useEffect(() => {
-    if (!user) return;
-
-    const fetchCart = async () => {
-      const res = await fetch(
-        `https://white-bag-e-commerce-backend.vercel.app/add_to_cart?userId=${user._id}`
-      );
-      const data = await res.json();
-      setCart(data);
-    };
-
-    fetchCart();
-  }, [user]);
-
-
-  // 🔹 Persist user
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem("user", JSON.stringify(user));
-    } else {
-      localStorage.removeItem("user");
-      setCart([]);
-    }
-  }, [user]);
-
-
-  // 🔹 ADD TO CART (LOGIN REQUIRED)
-  // 🔹 ADD TO CART (NO DUPLICATE, ONLY QTY INCREASE)
-  const addToCart = async (item) => {
-    if (!user) {
-      alert("Please login first");
-      return;
-    }
-
-    const exists = cart.find(
-      (c) => c.title === item.title
-    );
-
-    if (exists) {
-      setCart((prev) =>
-        prev.map((c) =>
-          c.title === item.title
-            ? { ...c, quantity: c.quantity + 1 }
-            : c
-        )
-      );
-      return;
-    }
-
-    const cleaned = {
-      userId: user._id,
-      productId: item.id,
-      title: item.title,
-      description: item.description,
-      image: item.image,
-      price: parseFloat(item.price.replace(/[^\d.]/g, "")),
-      quantity: item.quantity || 1,
-    };
-
-
-    const res = await fetch("https://white-bag-e-commerce-backend.vercel.app/add_to_cart", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(cleaned),
-    });
-
-    const saved = await res.json();
-    setCart((prev) => [...prev, saved]);
-  };
-
-
-
+export default function App() {
   return (
-    <usercontext.Provider
-      value={{
-        user,
-        setuser,
-        cart,
-        setCart,
-        addToCart,
-        wishlist,
-        addToWishlist,
-        removeFromWishlist,
-        orders,
-        setOrders
-
-      }}
-    >
-      <BrowserRouter>
-        <Header />
-
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/men-clothes" element={<Men addToCart={addToCart} />} />
-          <Route path="/women-clothes" element={<Women addToCart={addToCart} />} />
-          <Route path="/kid-clothes" element={<Kid addToCart={addToCart} />} />
-          <Route path="/furniture" element={<Furniture addToCart={addToCart} />} />
-          <Route path="/electronic" element={<Electronic addToCart={addToCart} />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/add_to_cart" element={<AddCart cart={cart} setCart={setCart} />} />
-          <Route path="/:category/:id" element={<Param />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signin" element={<Signin />} />
-          <Route path="/buy/:category/:id" element={<Buy />} />
-          <Route path="/orders" element={<MyOrders />} />
-          <Route path="/buy/cart" element={<Buy />} />
-          <Route path="/myorders" element={<MyOrders />} />
-          <Route path="/order/:id" element={<OrderDetails />} />
-          <Route path="/wishlist" element={<Wishlist />} />
-          <Route path="/search/:query" element={<Search />} />
-        </Routes>
-        <Footer />
-      </BrowserRouter>
-    </usercontext.Provider>
+    <Suspense fallback={<PageLoader />}>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="shop" element={<Shop />} />
+          <Route path="shop/:category" element={<Shop />} />
+          <Route path="search" element={<Search />} />
+          <Route path="product/:id" element={<Product />} />
+          <Route path="wishlist" element={<Wishlist />} />
+          <Route path="contact" element={<Contact />} />
+          <Route path="about" element={<About />} />
+          <Route path="login" element={<Auth mode="login" />} />
+          <Route path="register" element={<Auth mode="register" />} />
+          <Route element={<RequireAuth />}>
+            <Route path="cart" element={<Cart />} />
+            <Route path="checkout" element={<Checkout />} />
+            <Route path="orders" element={<Orders />} />
+            <Route path="orders/:id" element={<OrderDetail />} />
+          </Route>
+          <Route path="*" element={<NotFound />} />
+        </Route>
+      </Routes>
+    </Suspense>
   );
-};
-
-export default App;
+}

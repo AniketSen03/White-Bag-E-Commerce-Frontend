@@ -1,34 +1,37 @@
-import React from "react";
+import { Link } from 'react-router-dom';
+import Logo from './Logo';
+import { CATEGORIES } from '../lib/format';
 
-const Footer = () => {
+export default function Footer() {
+  const link = 'text-sm text-ink-mute hover:text-brand-700';
   return (
-    <footer className="bg-black text-white mt-16">
-      <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8 text-sm text-center">
-        {[
-          ["Company", ["About", "Careers", "Blog"]],
-          ["Support", ["Help Center", "Returns", "FAQs"]],
-          ["Shop", ["Men", "Women", "Electronics"]],
-          ["Social", ["Facebook", "Instagram", "LinkedIn"]],
-          ["Legal", ["Privacy", "Terms"]],
-        ].map(([title, items]) => (
-          <div key={title}>
-            <h3 className="font-bold mb-3">{title}</h3>
-            <ul className="space-y-1 text-gray-300">
-              {items.map((i) => (
-                <li key={i} className="hover:text-white cursor-pointer">
-                  {i}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+    <footer className="mt-16 border-t border-line bg-white">
+      <div className="container-x grid gap-8 py-10 sm:grid-cols-2 lg:grid-cols-4">
+        <div>
+          <Logo />
+          <p className="mt-3 max-w-xs text-sm text-ink-mute">Clothes, electronics and furniture, with an assistant that helps you find the right one.</p>
+        </div>
+        <div>
+          <h2 className="mb-3 text-sm font-bold">Shop</h2>
+          <ul className="space-y-2">{CATEGORIES.map((c) => <li key={c.id}><Link className={link} to={`/shop/${c.id}`}>{c.label}</Link></li>)}</ul>
+        </div>
+        <div>
+          <h2 className="mb-3 text-sm font-bold">Your account</h2>
+          <ul className="space-y-2">
+            <li><Link className={link} to="/orders">My orders</Link></li>
+            <li><Link className={link} to="/wishlist">Wishlist</Link></li>
+            <li><Link className={link} to="/cart">Cart</Link></li>
+          </ul>
+        </div>
+        <div>
+          <h2 className="mb-3 text-sm font-bold">Help</h2>
+          <ul className="space-y-2">
+            <li><Link className={link} to="/contact">Contact us</Link></li>
+            <li><Link className={link} to="/about">About</Link></li>
+          </ul>
+        </div>
       </div>
-
-      <div className="border-t border-gray-700 py-4 text-center text-xs">
-        © {new Date().getFullYear()} White Bag · Built by Aniket Sen
-      </div>
+      <div className="border-t border-line py-4 text-center text-xs text-ink-mute">© {new Date().getFullYear()} White Bag. Demo store: no real payments are taken.</div>
     </footer>
   );
-};
-
-export default Footer;
+}

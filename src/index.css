@@ -1,3 +1,30 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  body { @apply bg-paper font-sans text-ink antialiased; }
+  h1, h2, h3 { @apply font-display tracking-tight; }
+  :focus-visible { @apply outline-none ring-2 ring-brand-500 ring-offset-2 ring-offset-paper; }
+  img { @apply select-none; }
+}
+
+@layer components {
+  .no-scrollbar { scrollbar-width: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-60; }
+  .btn-primary { @apply btn bg-brand-600 text-white hover:bg-brand-700; }
+  .btn-accent { @apply btn bg-accent-500 text-ink hover:bg-accent-400; }
+  .btn-outline { @apply btn border border-line bg-white text-ink hover:border-brand-500 hover:text-brand-700; }
+  .input { @apply w-full rounded-lg border border-line bg-white px-3.5 py-2.5 text-sm placeholder:text-ink-mute/70 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30; }
+  .card { @apply rounded-xl border border-line bg-white; }
+  .container-x { @apply mx-auto w-full max-w-7xl px-4 sm:px-6; }
+}
+
+.skeleton { background: linear-gradient(90deg, #eceff5 25%, #f6f7fb 50%, #eceff5 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}

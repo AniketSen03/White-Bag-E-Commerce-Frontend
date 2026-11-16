@@ -1,194 +1,89 @@
-import React, { useContext, useState, useRef, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { usercontext } from "../App";
+import { useEffect, useRef, useState } from 'react';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Heart, LogOut, Package, Search, ShoppingCart, Sparkles, User } from 'lucide-react';
+import Logo from './Logo';
+import { CATEGORIES } from '../lib/format';
+import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
+import { useWishlist } from '../context/WishlistContext';
 
-const Header = () => {
-  const { user, setuser, cart, setCart } = useContext(usercontext);
-  const [open, setOpen] = useState(false);
-  const [dropdown, setDropdown] = useState(false);
-  const [search, setSearch] = useState("");
-
-  const dropRef = useRef(null);
-  const location = useLocation();
+export default function Header() {
+  const { user, logout } = useAuth();
+  const { count } = useCart();
+  const wishlist = useWishlist();
   const navigate = useNavigate();
+  const [q, setQ] = useState('');
+  const [menu, setMenu] = useState(false);
+  const menuRef = useRef(null);
 
-  // 🔐 logout
-  const logout = () => {
-    setuser(null);
-    setCart([]);
-    localStorage.removeItem("user");
-    setDropdown(false);
-    navigate("/login");
-  };
-
-  // close menu on route change
   useEffect(() => {
-    setOpen(false);
-  }, [location.pathname]);
-
-  // outside click for dropdown
-  useEffect(() => {
-    const close = (e) => {
-      if (dropRef.current && !dropRef.current.contains(e.target)) {
-        setDropdown(false);
-      }
-    };
-    document.addEventListener("mousedown", close);
-    return () => document.removeEventListener("mousedown", close);
+    const close = (e) => menuRef.current && !menuRef.current.contains(e.target) && setMenu(false);
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
   }, []);
 
-  // lock body scroll
-  useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
-  }, [open]);
+  const submit = (e) => {
+    e.preventDefault();
+    if (q.trim().length >= 2) navigate(`/search?q=${encodeURIComponent(q.trim())}`);
+  };
+
+  const iconBtn = 'relative rounded-lg p-2 text-ink-soft hover:bg-brand-50 hover:text-brand-700';
+  const badge = 'absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent-500 px-1 text-[10px] font-bold text-ink';
 
   return (
-    <header className="bg-black text-white sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3">
+    <header className="sticky top-0 z-40 border-b border-line bg-white/95 backdrop-blur">
+      <div className="container-x flex flex-wrap items-center gap-x-4 gap-y-2 py-2.5">
+        <Link to="/" aria-label="White Bag home" className="mr-auto md:mr-0"><Logo /></Link>
 
-        {/* LOGO */}
-        <Link to="/" className="text-2xl font-bold">
-          White Bag
-        </Link>
-
-        {/* HAMBURGER */}
-        <button
-          className="lg:hidden text-2xl"
-          onClick={() => setOpen(true)}
-        >
-          ☰
-        </button>
-
-        {/* NAV */}
-        <nav
-          className={`
-            fixed top-0 left-0 h-full w-full bg-black z-40
-            transform transition-transform duration-300
-            ${open ? "translate-x-0" : "-translate-x-full"}
-            lg:static lg:h-auto lg:w-auto lg:translate-x-0 lg:bg-transparent
-          `}
-        >
-          {/* CLOSE BUTTON */}
-          <button
-            className="absolute top-4 right-4 text-3xl z-50 lg:hidden"
-            onClick={() => setOpen(false)}
-          >
-            ✕
-          </button>
-
-          {/* MOBILE SEARCH */}
-          <div className="p-4 mt-10 lg:hidden">
+        <form onSubmit={submit} role="search" className="order-last w-full md:order-none md:mx-4 md:w-auto md:flex-1 md:max-w-xl">
+          <div className="relative">
+            <Sparkles size={17} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-brand-600" />
             <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && search.trim()) {
-                  navigate(`/search/${search}`);
-                  setOpen(false);
-                }
-              }}
-              placeholder="Search products..."
-              className="w-full px-4 py-2 rounded text-black"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              className="input pl-10 pr-11"
+              placeholder='Try "blue kurta under ₹2000"'
+              aria-label="Search products"
             />
+            <button className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-ink-mute hover:text-brand-700" aria-label="Search"><Search size={18} /></button>
           </div>
+        </form>
 
-          {/* LINKS */}
-          <ul
-            className="
-              flex flex-col gap-4 px-6
-              lg:flex-row lg:items-center lg:gap-6 lg:p-0
-            "
-          >
-            {/* DESKTOP SEARCH */}
-            <li className="hidden lg:block">
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && search.trim()) {
-                    navigate(`/search/${search}`);
-                  }
-                }}
-                placeholder="Search products..."
-                className="px-4 py-1 rounded text-black"
-              />
-            </li>
-
-            {[
-              ["All", "/"],
-              ["Electronics", "/electronic"],
-              ["Men", "/men-clothes"],
-              ["Women", "/women-clothes"],
-              ["Kids", "/kid-clothes"],
-              ["Furniture", "/furniture"],
-            ].map(([name, path]) => (
-              <li key={path}>
-                <Link
-                  to={path}
-                  className="block py-2 border-b border-gray-700 lg:border-none hover:text-gray-300"
-                >
-                  {name}
-                </Link>
-              </li>
-            ))}
-
-            {/* USER */}
-            {!user ? (
-              <li>
-                <Link
-                  to="/login"
-                  className="block bg-white text-black px-4 py-2 rounded text-center"
-                >
-                  Login
-                </Link>
-              </li>
-            ) : (
-              <li className="relative" ref={dropRef}>
-                <div
-                  onClick={() => setDropdown(!dropdown)}
-                  className="bg-white text-black w-9 h-9 rounded-full flex items-center justify-center cursor-pointer"
-                >
-                  {user.name?.[0]?.toUpperCase()}
+        <nav className="flex items-center gap-1" aria-label="Account">
+          <Link to="/wishlist" className={iconBtn} aria-label="Wishlist">
+            <Heart size={21} />
+            {wishlist.ids.length > 0 && <span className={badge}>{wishlist.ids.length}</span>}
+          </Link>
+          <Link to="/cart" className={iconBtn} aria-label={`Cart, ${count} items`}>
+            <ShoppingCart size={21} />
+            {count > 0 && <span className={badge}>{count}</span>}
+          </Link>
+          {user ? (
+            <div className="relative" ref={menuRef}>
+              <button onClick={() => setMenu((m) => !m)} className={iconBtn} aria-haspopup="menu" aria-expanded={menu} aria-label="Account menu">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-600 text-xs font-bold text-white">{user.name[0].toUpperCase()}</span>
+              </button>
+              {menu && (
+                <div role="menu" className="card absolute right-0 mt-2 w-52 p-1.5 shadow-lg">
+                  <p className="truncate px-3 py-2 text-sm font-bold">{user.name}</p>
+                  <Link role="menuitem" to="/orders" onClick={() => setMenu(false)} className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-brand-50"><Package size={16} /> My orders</Link>
+                  <button role="menuitem" onClick={() => { logout(); setMenu(false); navigate('/'); }} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-brand-50"><LogOut size={16} /> Log out</button>
                 </div>
-
-                {dropdown && (
-                  <div className="absolute right-0 mt-2 bg-white text-black rounded shadow w-40">
-                    <Link to="/orders" className="block px-4 py-2 hover:bg-gray-100">
-                      My Orders
-                    </Link>
-                    <Link to="/wishlist" className="block px-4 py-2 hover:bg-gray-100">
-                      Wishlist
-                    </Link>
-                    <button
-                      onClick={logout}
-                      className="w-full text-left px-4 py-2 hover:bg-gray-100"
-                    >
-                      Logout
-                    </button>
-                  </div>
-                )}
-              </li>
-            )}
-
-            {/* CART */}
-            <li>
-              <Link
-                to="/add_to_cart"
-                className="flex items-center gap-2 bg-white text-black px-4 py-2 rounded justify-center"
-              >
-                Cart
-                {cart.length > 0 && (
-                  <span className="bg-black text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-                    {cart.length}
-                  </span>
-                )}
-              </Link>
-            </li>
-          </ul>
+              )}
+            </div>
+          ) : (
+            <Link to="/login" className="btn-primary ml-1 !px-4 !py-2"><User size={16} /> Log in</Link>
+          )}
         </nav>
       </div>
+
+      <nav className="border-t border-line" aria-label="Categories">
+        <div className="container-x no-scrollbar flex gap-1 overflow-x-auto py-1 text-sm">
+          {CATEGORIES.map((c) => (
+            <NavLink key={c.id} to={`/shop/${c.id}`} className={({ isActive }) => `whitespace-nowrap rounded-lg px-3.5 py-1.5 font-medium ${isActive ? 'bg-brand-50 text-brand-700' : 'text-ink-soft hover:text-brand-700'}`}>{c.label}</NavLink>
+          ))}
+        </div>
+      </nav>
     </header>
   );
-};
-
-export default Header;
+}
